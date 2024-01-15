@@ -1,0 +1,194 @@
+﻿//importing java inbuilt libraries 
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+
+//our main class, executes the program, controls the actions of the player
+public class Chomps extends JPanel implements ActionListener,KeyListener
+{
+    BackgroundScroll b= new BackgroundScroll();
+    Entities ent = new Entities();
+    int score=0; 
+    int scoreSpeed=500; //the score required for the bananas to speed up
+    int d=40;//diameter of ball
+    
+    static int yLimitUp; //the max amount the player can go up
+    static int yLimitDown; // the floor
+    
+    
+    
+    public static final double FRICTION = 1; //slows acceleration
+    public static double GRAVITY = 0.10; //brings player down to earth
+    private double x=200; //initial value of x
+    private double y=200; //initial value of y
+    private double velx = 0; //initial velocity in the x direction
+    private double vely = 0; //initial velocity in the y direction
+    private int jump = 0; // the initial number of jumps
+
+
+    Timer time = new Timer(5, this);
+    public Chomps()
+    {
+        time.start();
+        addKeyListener(this); //program is ready to perform certain actions based on whether a key is pressed
+        setFocusable(true); //the JPanel will get focused
+        
+    }
+    public static void main(String[]args)//executes game, 
+    {
+        Chomps m=new Chomps(); //creates an object
+        JFrame f=new JFrame("Chomps Game"); //creates JFrame
+        f.getContentPane().setBackground(Color.white); //sets background
+        f.setSize(1000,500); //sets size
+        
+        yLimitUp = 0; //sets the upper limit to zero
+        yLimitDown = 315; // sets the floor to 315
+        
+        f.setVisible(true); 
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.add(m);
+    }
+    
+    public void paint(Graphics g)
+    {
+        super.paint(g); //player
+        b.paint(g); //background
+        ent.paint(g); //banana
+        
+        //player
+        //g.setColor(Color.red);
+        //g.fillRect((int)x,(int)y,25,50);
+        ImageIcon i = new ImageIcon(new ImageIcon("player.png").getImage().getScaledInstance(50, 60, Image.SCALE_DEFAULT));
+
+
+        i.paintIcon(this,g,(int)x,(int)y);
+        
+        //ground
+        g.setColor(Color.black);
+        g.drawLine(0,375,1000,375);
+        
+        //score
+        g.setColor(Color.white);
+        g.drawString("Score: "+score,450,20);
+        
+        
+        time.start();
+    }
+    
+    public void actionPerformed(ActionEvent e)
+    {
+        
+        update();
+        repaint();
+    }
+    
+    public void accelerate(double accX, double accY)
+    {
+        velx = velx + accX;
+        vely = vely + accY;
+    }
+    
+    public void move(double xDelta, double yDelta)
+    {
+        y += yDelta;
+        
+        //stay on ground
+        if(inAir()==false)
+        {
+            vely=0;
+            y=yLimitDown;
+        }
+        
+        //Banana collision check
+        for(int n=0;n < ent.banNum;n++)
+        {
+            if(ent.banX[n] > x-30 && ent.banX[n] < x+30 && ent.banY[n] > y-50 && ent.banY[n] < y+50)
+            {
+                ent.resetEntity(n);
+                score=score+25;
+                
+                if(score >= scoreSpeed)
+                {
+                    ent.speedUp(1);
+                    scoreSpeed = scoreSpeed + 500;
+                }
+                
+            }
+        }
+        //do collision check here,  upon collision, set speedX/speedY to zero..!
+    }
+    
+    
+    //updates position
+    public void update()
+    {
+        
+        move(velx, vely);
+        velx *= FRICTION;
+        vely *= FRICTION;
+        accelerate(0, +GRAVITY);//gravity accelerates object down each tick
+        
+    }
+    
+    //checks if the player is in the air
+    public boolean inAir()
+    {
+        if(y >= yLimitDown)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    
+    // actions for when key is pressed
+    public void keyPressed(KeyEvent e)
+    {
+        int c=e.getKeyCode();
+        double tempGrav = GRAVITY; 
+        
+        //jump from ground
+        if(c==KeyEvent.VK_SPACE&&inAir()==false)
+        {
+            if(inAir()==false)
+            {
+                accelerate(0, -5.5);
+                GRAVITY=0;
+                jump=1;
+            }
+        }
+        
+        //double jump
+        if(c==KeyEvent.VK_SPACE&&inAir()==true)
+        {
+            if(jump==1)
+            {
+                vely=0;
+                accelerate(0, -5.5);
+                GRAVITY=0;
+                jump=0;
+            }
+        }
+        GRAVITY = tempGrav;
+        
+    }
+    
+    public void keyTyped(KeyEvent e)
+    {
+        
+    }
+    
+    public void keyReleased(KeyEvent e)
+    {
+        
+    }
+    
+}
+
+
+
+
+________________

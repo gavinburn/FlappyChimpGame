@@ -1,0 +1,131 @@
+﻿import java.awt.*;
+import javax.swing.*;
+import java.awt.event.*;
+
+
+public class BackgroundScroll extends JPanel implements ActionListener
+{
+    int backgroundX1 = 0;
+    int backgroundX2 = 1000;
+    Timer time = new Timer(5, this);
+    
+    
+    //makes background scroll
+    public BackgroundScroll()
+    {
+        time.start();
+        setFocusable(true);
+    }
+    
+//sets image
+    public void paint(Graphics g)
+    {
+        super.paint(g);
+        ImageIcon i = new ImageIcon("background2.jpg");
+        i.paintIcon(this,g,backgroundX1,-150);
+        i.paintIcon(this,g,backgroundX2,-150);
+    }
+    
+    public void actionPerformed(ActionEvent e)
+    {
+        backgroundX1--;
+        backgroundX2--;
+        if(backgroundX1<-1000)
+        {
+            backgroundX1 =0;
+        }
+        if(backgroundX2<0)
+        {
+            backgroundX2 =1000;
+        }
+    }
+    
+}
+
+
+
+
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.*;
+
+
+public class Entities extends JPanel implements ActionListener
+{
+    
+    Timer time = new Timer(5, this);
+    
+    //edit for amount of bananas on screen at once
+    public int banNum = 15;
+    
+    //pos for generation
+    public double[] banX = new double[banNum];
+    public double[] banY = new double[banNum];
+    
+    //banana speed
+    private int banSpeed = 2;
+    public Entities()
+    {
+        time.start();
+        setFocusable(true);
+        
+        
+        for(int n=0;n < banNum;n++)
+        {
+            
+            banX[n] = Math.random()*10;
+            banY[n] = Math.random()*10;
+            
+            //Multiplying the x and y here for better separation after its 
+            //converted to an int
+            
+            banX[n] = (int)banX[n]*100+1050;
+            banY[n] = (int)banY[n]*37;
+        }
+        
+        
+    }
+    
+    public void paint(Graphics g)
+    {
+        super.paint(g);
+        ImageIcon i = new ImageIcon(new ImageIcon("banana2.png").getImage().getScaledInstance(60, 41, Image.SCALE_DEFAULT));
+        
+        for(int n=0;n < banNum;n++)
+        {
+            //bX = (int)banX[n];
+            //bY = (int)banY[n];
+            
+            i.paintIcon(this,g,(int)banX[n],(int)banY[n]);
+        }
+    }
+    
+    public void resetEntity(int id)
+    {
+        banX[id] = Math.random()*10;
+        banY[id] = Math.random()*10;
+        banX[id] = (int)banX[id]*80+1050;
+        banY[id] = (int)banY[id]*37;
+    }
+    
+    
+    public void speedUp(int s)
+    {
+        banSpeed = banSpeed + s;
+    }
+    
+    public void actionPerformed(ActionEvent e)
+    {
+        
+        for(int n=0;n < banNum;n++)
+        {
+            if(banX[n] <= -40)
+            {
+                resetEntity(n);
+            }
+            banX[n]=banX[n]-banSpeed;
+        }
+        
+    }
+    
+}
